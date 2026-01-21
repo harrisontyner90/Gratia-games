@@ -10,8 +10,6 @@ const ctx = canvas.getContext('2d');
 let gameState = 'start'; // start, playing, gate1, gate2, final
 let currentLevel = 1;
 let score = 0;
-let wave = 1;
-let wavesPerLevel = 3;
 
 // Lead Data
 let leadData = {
@@ -22,26 +20,81 @@ let leadData = {
     prioritiesHit: {}
 };
 
-// Priority Targets by Level
-const priorityTargets = {
-    1: [
-        'Patient Experience',
-        'Staff Retention',
-        'Contract Labor Costs',
-        'Sepsis Rates'
-    ],
-    2: [
-        'Readmission Rates',
-        'Staff Satisfaction',
-        'Burnout Prevention',
-        'HCAHPS Scores'
-    ],
-    3: [
-        'Quality Metrics',
-        'Nurse Turnover',
-        'Agency Spending',
-        'Patient Safety'
-    ]
+// All Priority Targets (will be shuffled and distributed across levels)
+const allPriorities = [
+    'Patient Experience',
+    'Retention',
+    'Fill Open Shifts',
+    'Reduce Contract Labor',
+    'Reduce Call-ins & No-shows',
+    'Improve Morale',
+    'Reduce Burnout',
+    'Sense of Belonging',
+    'Recognition & Appreciation',
+    'Team Communication',
+    'Staff Satisfaction',
+    'New Hire Mentorship',
+    'Leadership Development',
+    'Sepsis Prevention',
+    'Fall Prevention',
+    'Decrease HAC Rate',
+    'Workplace Safety',
+    'Hand Hygiene',
+    'Documentation Adherence',
+    'Medication Safety',
+    'Patient Safety',
+    'Infection Control',
+    'HCAHPS Scores'
+];
+
+// Shuffle array helper
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
+// Priority targets per level (randomized at game start)
+let priorityTargets = { 1: [], 2: [], 3: [] };
+
+function randomizePriorities() {
+    const shuffled = shuffleArray(allPriorities);
+    priorityTargets = {
+        1: shuffled.slice(0, 6),      // 6 targets
+        2: shuffled.slice(6, 14),     // 8 targets
+        3: shuffled.slice(14, 23)     // 9 targets (23 total priorities)
+    };
+}
+
+// Gratia Games mapping to priorities
+const gratiaGames = {
+    'Compliments Circle': {
+        priorities: ['Patient Experience', 'Improve Morale', 'Staff Satisfaction', 'HCAHPS Scores'],
+        description: 'Build culture & boost morale through peer recognition'
+    },
+    'Care IQ': {
+        priorities: ['Sepsis Prevention', 'Fall Prevention', 'Decrease HAC Rate', 'Workplace Safety', 'Hand Hygiene', 'Medication Safety', 'Patient Safety', 'Infection Control'],
+        description: 'Clinical excellence & safety training gamified'
+    },
+    'Living Legends': {
+        priorities: ['Sense of Belonging', 'Recognition & Appreciation', 'Improve Morale', 'Staff Satisfaction'],
+        description: 'Celebrate achievements & build belonging'
+    },
+    'New Hire Navigator': {
+        priorities: ['Retention', 'Leadership Development', 'New Hire Mentorship'],
+        description: 'Onboarding & retention through mentorship'
+    },
+    'Shift Pickup': {
+        priorities: ['Reduce Contract Labor', 'Fill Open Shifts', 'Reduce Call-ins & No-shows'],
+        description: 'Fill shifts & reduce contract labor costs'
+    },
+    'Charting Champs': {
+        priorities: ['Documentation Adherence', 'Recognition & Appreciation'],
+        description: 'Gamify documentation compliance'
+    }
 };
 
 // Colors for targets
@@ -76,7 +129,7 @@ let lastBulletTime = 0;
 let targets = [];
 const targetWidth = 120;
 const targetHeight = 50;
-let targetSpeed = 1.5;
+let targetSpeed = 0.8;
 
 // Stars (background)
 let stars = [];
@@ -99,8 +152,8 @@ const playAgainBtn = document.getElementById('play-again');
 const scoreDisplay = document.getElementById('score');
 const levelDisplay = document.getElementById('level');
 
-// Formspree endpoint - replace with your actual endpoint
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+// Formspree endpoint
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mgoonqza';
 
 // ==========================================
 // INITIALIZATION
@@ -241,7 +294,8 @@ function startGame() {
     gameState = 'playing';
     currentLevel = 1;
     score = 0;
-    wave = 1;
+    targetSpeed = 0.92; // Reset speed (10% faster)
+    randomizePriorities(); // Shuffle priorities for this playthrough
     updateHUD();
     spawnWave();
 }
@@ -259,7 +313,7 @@ function resetGame() {
     gameState = 'start';
     currentLevel = 1;
     score = 0;
-    wave = 1;
+    targetSpeed = 0.92;
     targets = [];
     bullets = [];
     updateHUD();
@@ -267,43 +321,64 @@ function resetGame() {
 
 function spawnWave() {
     const levelTargets = priorityTargets[currentLevel];
-    // Only spawn 2 targets per wave, staggered vertically
-    const startIdx = ((wave - 1) * 2) % levelTargets.length;
-    const targetsThisWave = [
-        levelTargets[startIdx % levelTargets.length],
-        levelTargets[(startIdx + 1) % levelTargets.length]
-    ];
 
-    // Position targets with good horizontal spacing
-    const positions = [
-        canvas.width * 0.25 - targetWidth / 2,
-        canvas.width * 0.75 - targetWidth / 2
-    ];
+    // Highly randomized spawning for unpredictable gameplay
+    const margin = 15;
+    const minX = margin;
+    const maxX = canvas.width - targetWidth - margin;
 
-    for (let i = 0; i < targetsThisWave.length; i++) {
-        const targetName = targetsThisWave[i];
-        targets.push({
-            x: positions[i],
-            y: -targetHeight - (i * 80), // Stagger vertically
-            width: targetWidth,
-            height: targetHeight,
-            name: targetName,
-            color: targetColors[(startIdx + i) % targetColors.length],
-            health: 1
+    // Create spawn positions with lots of variation
+    const spawnData = [];
+    let currentY = -targetHeight - Math.random() * 100; // Random initial offset
+
+    for (let i = 0; i < levelTargets.length; i++) {
+        // Varied vertical spacing (68-180px) - reduced by 15%
+        const baseSpacing = 68 + Math.random() * 112;
+        // Occasional gaps for breathing room (smaller and less frequent)
+        const extraGap = Math.random() < 0.2 ? Math.random() * 80 : 0;
+        const verticalSpacing = baseSpacing + extraGap;
+
+        currentY -= verticalSpacing;
+
+        // Divide screen into 3 zones (left, center, right) and pick randomly
+        const zone = Math.floor(Math.random() * 3);
+        let xPos;
+        if (zone === 0) {
+            xPos = minX + Math.random() * (maxX - minX) * 0.3; // Left third
+        } else if (zone === 1) {
+            xPos = minX + (maxX - minX) * 0.35 + Math.random() * (maxX - minX) * 0.3; // Center
+        } else {
+            xPos = minX + (maxX - minX) * 0.7 + Math.random() * (maxX - minX) * 0.3; // Right third
+        }
+
+        spawnData.push({
+            x: xPos,
+            y: currentY,
+            name: levelTargets[i],
+            colorIndex: i
         });
     }
-}
 
-function nextWave() {
-    wave++;
+    // Shuffle the spawn order for even more unpredictability
+    for (let i = spawnData.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        // Swap Y positions but keep X positions
+        const tempY = spawnData[i].y;
+        spawnData[i].y = spawnData[j].y;
+        spawnData[j].y = tempY;
+    }
 
-    if (wave > wavesPerLevel) {
-        // Level complete
-        completeLevel();
-    } else {
-        // Show wave indicator briefly
-        showLevelText('WAVE ' + wave);
-        setTimeout(spawnWave, 1000);
+    // Create targets
+    for (const data of spawnData) {
+        targets.push({
+            x: data.x,
+            y: data.y,
+            width: targetWidth,
+            height: targetHeight,
+            name: data.name,
+            color: targetColors[data.colorIndex % targetColors.length],
+            health: 1
+        });
     }
 }
 
@@ -333,12 +408,14 @@ function completeLevel() {
 
 function startNextLevel() {
     currentLevel++;
-    wave = 1;
-    targetSpeed += 0.2;
+    targetSpeed += 0.33; // Increase speed each level (10% faster)
     updateHUD();
-    gameState = 'playing';
+    gameState = 'transition'; // Stay in transition until targets spawn
     showLevelText('LEVEL ' + currentLevel);
-    setTimeout(spawnWave, 1000);
+    setTimeout(() => {
+        spawnWave();
+        gameState = 'playing'; // Now start playing
+    }, 1000);
 }
 
 function showLevelText(text) {
@@ -362,15 +439,7 @@ async function handleGate1Submit(e) {
     leadData.name = document.getElementById('name').value;
     leadData.email = document.getElementById('email').value;
 
-    // Submit to Formspree (non-blocking)
-    submitToFormspree({
-        type: 'Gate 1 - Initial Contact',
-        name: leadData.name,
-        email: leadData.email,
-        score: score,
-        priorities: formatPriorities()
-    });
-
+    // Don't submit yet - wait until game complete
     gate1.classList.add('hidden');
     startNextLevel();
 }
@@ -381,17 +450,7 @@ async function handleGate2Submit(e) {
     leadData.organization = document.getElementById('organization').value;
     leadData.title = document.getElementById('title').value;
 
-    // Submit to Formspree with full info
-    submitToFormspree({
-        type: 'Gate 2 - Full Lead',
-        name: leadData.name,
-        email: leadData.email,
-        organization: leadData.organization,
-        title: leadData.title,
-        score: score,
-        priorities: formatPriorities()
-    });
-
+    // Don't submit yet - wait until game complete
     gate2.classList.add('hidden');
     startNextLevel();
 }
@@ -406,15 +465,21 @@ function formatPriorities() {
 
 async function submitToFormspree(data) {
     try {
-        await fetch(FORMSPREE_ENDPOINT, {
+        const response = await fetch(FORMSPREE_ENDPOINT, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
             body: JSON.stringify(data)
         });
+        if (response.ok) {
+            console.log('Form submitted successfully!', data);
+        } else {
+            console.error('Form submission failed:', response.status, await response.text());
+        }
     } catch (err) {
-        console.log('Form submission error (this is expected in dev):', err);
+        console.error('Form submission error:', err);
     }
 }
 
@@ -436,6 +501,55 @@ function showFinalCTA() {
         });
     }
 
+    // Calculate game recommendations based on priorities hit
+    const gameScores = {};
+    const userPriorities = Object.keys(leadData.prioritiesHit);
+
+    for (const [gameName, gameData] of Object.entries(gratiaGames)) {
+        let score = 0;
+        const matchedPriorities = [];
+
+        for (const priority of gameData.priorities) {
+            if (leadData.prioritiesHit[priority]) {
+                score += leadData.prioritiesHit[priority];
+                matchedPriorities.push(priority);
+            }
+        }
+
+        if (score > 0) {
+            gameScores[gameName] = { score, matchedPriorities, description: gameData.description };
+        }
+    }
+
+    // Sort games by score and take top 3
+    const topGames = Object.entries(gameScores)
+        .sort((a, b) => b[1].score - a[1].score)
+        .slice(0, 3);
+
+    // Display recommendations
+    const recommendationsList = document.getElementById('recommendations-list');
+    recommendationsList.innerHTML = '';
+
+    if (topGames.length === 0) {
+        recommendationsList.innerHTML = '<p class="no-recs">Play again to get personalized recommendations!</p>';
+    } else {
+        topGames.forEach(([gameName, data], index) => {
+            const rec = document.createElement('div');
+            rec.className = 'game-rec';
+            rec.innerHTML = `
+                <div class="game-rec-number">${index + 1}</div>
+                <div class="game-rec-content">
+                    <div class="game-rec-name">${gameName}</div>
+                    <div class="game-rec-desc">${data.description}</div>
+                </div>
+            `;
+            recommendationsList.appendChild(rec);
+        });
+    }
+
+    // Store recommendations for form submission
+    leadData.recommendedGames = topGames.map(([name]) => name);
+
     // Submit final data
     submitToFormspree({
         type: 'COMPLETE - Full Lead with Priorities',
@@ -444,7 +558,8 @@ function showFinalCTA() {
         organization: leadData.organization,
         title: leadData.title,
         finalScore: score,
-        topPriorities: formatPriorities()
+        topPriorities: formatPriorities(),
+        recommendedGames: leadData.recommendedGames.join(', ')
     });
 
     finalCta.classList.remove('hidden');
@@ -545,9 +660,9 @@ function updateTargets() {
         }
     }
 
-    // Check if wave is complete
-    if (allTargetsGone && gameState === 'playing') {
-        nextWave();
+    // Check if level is complete (all targets gone)
+    if (targets.length === 0 && gameState === 'playing') {
+        completeLevel();
     }
 }
 

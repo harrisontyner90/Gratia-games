@@ -27,15 +27,15 @@
         <canvas id="gameCanvas"></canvas>
 
         <div id="start-screen" class="overlay">
+            <div class="gratia-logo">GRATIA HEALTH</div>
+            <p class="presents">PRESENTS</p>
             <h1 class="game-title">PRIORITY<br>BLASTER</h1>
-            <p class="subtitle">Healthcare Edition</p>
             <p class="instructions">Shoot the priorities that matter most to you!</p>
             <div class="controls-info">
                 <p><span class="key">A/D</span> or <span class="key">Arrow Keys</span> - Move</p>
                 <p><span class="key">SPACE</span> or <span class="key">TAP</span> - Shoot</p>
             </div>
             <button id="start-btn" class="arcade-btn">START GAME</button>
-            <p class="powered-by">Powered by Gratia Health</p>
         </div>
 
         <!-- Gate 1: Name + Email -->
@@ -84,8 +84,12 @@
                     <h3>YOUR TOP PRIORITIES</h3>
                     <ol id="priorities-list"></ol>
                 </div>
-                <p class="cta-message">Let's talk about how Gratia Health can help with these priorities.</p>
-                <a href="https://calendly.com/gratia-health/demo" target="_blank" class="arcade-btn cta-btn">SCHEDULE A DEMO</a>
+                <div id="game-recommendations">
+                    <h3>RECOMMENDED GRATIA GAMES FOR YOU</h3>
+                    <div id="recommendations-list"></div>
+                </div>
+                <p class="cta-message">Let's explore these solutions in your demo!</p>
+                <a href="https://calendly.com/harrison-tyner-gratia/30-minute-meeting" target="_blank" class="arcade-btn cta-btn">SCHEDULE A DEMO</a>
                 <button id="play-again" class="arcade-btn secondary">PLAY AGAIN</button>
             </div>
         </div>
