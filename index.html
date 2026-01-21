@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Gratia Health - Priority Blaster</title>
+    <title>Gratia Health - Challenge Blaster</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
     <div class="scanlines"></div>
@@ -29,13 +29,17 @@
         <div id="start-screen" class="overlay">
             <div class="gratia-logo">GRATIA HEALTH</div>
             <p class="presents">PRESENTS</p>
-            <h1 class="game-title">PRIORITY<br>BLASTER</h1>
-            <p class="instructions">Shoot the priorities that matter most to you!</p>
+            <h1 class="game-title">CHALLENGE<br>BLASTER</h1>
+            <p class="instructions">Blast through your biggest workforce challenges!</p>
             <div class="controls-info">
                 <p><span class="key">A/D</span> or <span class="key">Arrow Keys</span> - Move</p>
                 <p><span class="key">SPACE</span> or <span class="key">TAP</span> - Shoot</p>
             </div>
             <button id="start-btn" class="arcade-btn">START GAME</button>
+            <div class="qr-section">
+                <p class="qr-label">SCAN TO SHARE</p>
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAABGAQMAAABL4HDHAAAABlBMVEUKCgoA//+f13CTAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABE0lEQVQokXXSMWqEQBQG4DcMaDPE1m3iFVIaCO5VBixsF2wsAiN4gLQpBK8yNm4zxCtos7YuaSxkX8bNRmfD7F99zfz88AZgjcACqOPhZIiTKmI7BaGh5FxMB5+JR6peEdU/5U16YXfipJSiY2CXwLJJd+11y590HPp8G3uTOONx7r8/pVX8KyYfAXahIVEXkdfPy9tVmaRTSmQmreIe7seOVmBIQNwAtkvfprYEz38JwC7Qfa7i0pBf55iflr5NyRPFwsUhtMsrQJB2AEP8EkfvPtN9m5IWyTjgMFkFEEwUpTAlsKrnQAkwxEkOaSB5aJW+73Hsr6sMlb+l9wLm7FFapf+VPLgqM6VvjvPpzQWr1vwAgNMmyE5VnNYAAAAASUVORK5CYII=" alt="QR Code" class="qr-code">
+            </div>
         </div>
 
         <!-- Gate 1: Name + Email -->
@@ -90,11 +94,22 @@
                 </div>
                 <p class="cta-message">Let's explore these solutions in your demo!</p>
                 <a href="https://calendly.com/harrison-tyner-gratia/30-minute-meeting" target="_blank" class="arcade-btn cta-btn">SCHEDULE A DEMO</a>
+
+                <div id="share-section">
+                    <h3>INVITE YOUR NURSE LEADER TO PLAY</h3>
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAABGAQMAAABL4HDHAAAABlBMVEUKCgoA//+f13CTAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABE0lEQVQokXXSMWqEQBQG4DcMaDPE1m3iFVIaCO5VBixsF2wsAiN4gLQpBK8yNm4zxCtos7YuaSxkX8bNRmfD7F99zfz88AZgjcACqOPhZIiTKmI7BaGh5FxMB5+JR6peEdU/5U16YXfipJSiY2CXwLJJd+11y590HPp8G3uTOONx7r8/pVX8KyYfAXahIVEXkdfPy9tVmaRTSmQmreIe7seOVmBIQNwAtkvfprYEz38JwC7Qfa7i0pBf55iflr5NyRPFwsUhtMsrQJB2AEP8EkfvPtN9m5IWyTjgMFkFEEwUpTAlsKrnQAkwxEkOaSB5aJW+73Hsr6sMlb+l9wLm7FFapf+VPLgqM6VvjvPpzQWr1vwAgNMmyE5VnNYAAAAASUVORK5CYII=" alt="QR Code" class="qr-code">
+                    <div class="share-buttons">
+                        <button id="share-email" class="share-btn">📧 Email</button>
+                        <button id="share-copy" class="share-btn">📋 Copy Link</button>
+                    </div>
+                    <span id="copy-confirmation" class="copy-confirm hidden">Link copied!</span>
+                </div>
+
                 <button id="play-again" class="arcade-btn secondary">PLAY AGAIN</button>
             </div>
         </div>
     </div>
 
-    <script src="game.js"></script>
+    <script src="game.js?v=2"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 // ==========================================
-// GRATIA HEALTH - PRIORITY BLASTER GAME
+// GRATIA HEALTH - CHALLENGE BLASTER GAME
 // ==========================================
 
 // Canvas & Context
@@ -234,6 +234,10 @@ function setupEventListeners() {
 
     // Play again
     playAgainBtn.addEventListener('click', resetGame);
+
+    // Share buttons
+    document.getElementById('share-email').addEventListener('click', shareViaEmail);
+    document.getElementById('share-copy').addEventListener('click', copyGameLink);
 }
 
 function handleTouchStart(e) {
@@ -286,6 +290,35 @@ function handleMouseUp() {
 }
 
 // ==========================================
+// SHARE FUNCTIONS
+// ==========================================
+
+function getGameUrl() {
+    return window.location.href.split('?')[0];
+}
+
+function shareViaEmail() {
+    const gameUrl = getGameUrl();
+    const subject = encodeURIComponent('Try Challenge Blaster - A Fun Healthcare Game!');
+    const body = encodeURIComponent(`Hey!\n\nI just played Challenge Blaster from Gratia Health - it's a fun arcade game about workforce challenges.\n\nGive it a try: ${gameUrl}\n\nSee if you can beat my score!`);
+    window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+}
+
+function copyGameLink() {
+    const gameUrl = getGameUrl();
+    navigator.clipboard.writeText(gameUrl).then(() => {
+        const confirmation = document.getElementById('copy-confirmation');
+        confirmation.classList.remove('hidden');
+        setTimeout(() => {
+            confirmation.classList.add('hidden');
+        }, 2000);
+    }).catch(() => {
+        // Fallback for older browsers
+        prompt('Copy this link:', gameUrl);
+    });
+}
+
+// ==========================================
 // GAME FLOW
 // ==========================================
 
@@ -294,7 +327,7 @@ function startGame() {
     gameState = 'playing';
     currentLevel = 1;
     score = 0;
-    targetSpeed = 0.92; // Reset speed (10% faster)
+    targetSpeed = 1.01; // Reset speed (level 1 - 10% faster)
     randomizePriorities(); // Shuffle priorities for this playthrough
     updateHUD();
     spawnWave();
@@ -313,7 +346,7 @@ function resetGame() {
     gameState = 'start';
     currentLevel = 1;
     score = 0;
-    targetSpeed = 0.92;
+    targetSpeed = 1.01;
     targets = [];
     bullets = [];
     updateHUD();
