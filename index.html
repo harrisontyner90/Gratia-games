@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
     <div class="scanlines"></div>
@@ -42,40 +42,25 @@
             </div>
         </div>
 
-        <!-- Gate 1: Name + Email -->
+        <!-- Gate: Name + Email -->
         <div id="gate1" class="overlay modal hidden">
             <div class="modal-content">
-                <h2>LEVEL 1 COMPLETE!</h2>
-                <p class="gate-message">Nice shooting! Enter your info to continue.</p>
+                <h2>GAME COMPLETE!</h2>
+                <p class="gate-message">Nice shooting! Enter your info to see your results.</p>
                 <form id="gate1-form">
                     <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" id="name" name="name" required placeholder="Your name">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" name="firstName" required placeholder="First name">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" name="lastName" required placeholder="Last name">
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
                         <input type="email" id="email" name="email" required placeholder="your@email.com">
                     </div>
-                    <button type="submit" class="arcade-btn">CONTINUE TO LEVEL 2</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Gate 2: Org + Title -->
-        <div id="gate2" class="overlay modal hidden">
-            <div class="modal-content">
-                <h2>LEVEL 2 COMPLETE!</h2>
-                <p class="gate-message">You're on fire! Just a bit more info.</p>
-                <form id="gate2-form">
-                    <div class="form-group">
-                        <label for="organization">Organization</label>
-                        <input type="text" id="organization" name="organization" required placeholder="Hospital/Health System">
-                    </div>
-                    <div class="form-group">
-                        <label for="title">Job Title</label>
-                        <input type="text" id="title" name="title" required placeholder="Your role">
-                    </div>
-                    <button type="submit" class="arcade-btn">CONTINUE TO LEVEL 3</button>
+                    <button type="submit" class="arcade-btn">SEE MY RESULTS</button>
                 </form>
             </div>
         </div>
@@ -110,6 +95,6 @@
         </div>
     </div>
 
-    <script src="game.js?v=2"></script>
+    <script src="game.js?v=3"></script>
 </body>
 </html>

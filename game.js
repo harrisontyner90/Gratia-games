@@ -13,10 +13,9 @@ let score = 0;
 
 // Lead Data
 let leadData = {
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
-    organization: '',
-    title: '',
     prioritiesHit: {}
 };
 
@@ -58,14 +57,12 @@ function shuffleArray(array) {
 }
 
 // Priority targets per level (randomized at game start)
-let priorityTargets = { 1: [], 2: [], 3: [] };
+let priorityTargets = { 1: [] };
 
 function randomizePriorities() {
     const shuffled = shuffleArray(allPriorities);
     priorityTargets = {
-        1: shuffled.slice(0, 6),      // 6 targets
-        2: shuffled.slice(6, 14),     // 8 targets
-        3: shuffled.slice(14, 23)     // 9 targets (23 total priorities)
+        1: shuffled.slice(0, 10)      // 10 targets
     };
 }
 
@@ -144,8 +141,6 @@ const startScreen = document.getElementById('start-screen');
 const startBtn = document.getElementById('start-btn');
 const gate1 = document.getElementById('gate1');
 const gate1Form = document.getElementById('gate1-form');
-const gate2 = document.getElementById('gate2');
-const gate2Form = document.getElementById('gate2-form');
 const finalCta = document.getElementById('final-cta');
 const prioritiesList = document.getElementById('priorities-list');
 const playAgainBtn = document.getElementById('play-again');
@@ -228,9 +223,8 @@ function setupEventListeners() {
     // Start button
     startBtn.addEventListener('click', startGame);
 
-    // Gate forms
+    // Gate form
     gate1Form.addEventListener('submit', handleGate1Submit);
-    gate2Form.addEventListener('submit', handleGate2Submit);
 
     // Play again
     playAgainBtn.addEventListener('click', resetGame);
@@ -327,7 +321,7 @@ function startGame() {
     gameState = 'playing';
     currentLevel = 1;
     score = 0;
-    targetSpeed = 1.01; // Reset speed (level 1 - 10% faster)
+    targetSpeed = 1.67; // Speed (equivalent to old level 3)
     randomizePriorities(); // Shuffle priorities for this playthrough
     updateHUD();
     spawnWave();
@@ -336,17 +330,16 @@ function startGame() {
 function resetGame() {
     finalCta.classList.add('hidden');
     leadData = {
-        name: '',
+        firstName: '',
+        lastName: '',
         email: '',
-        organization: '',
-        title: '',
         prioritiesHit: {}
     };
     startScreen.classList.remove('hidden');
     gameState = 'start';
     currentLevel = 1;
     score = 0;
-    targetSpeed = 1.01;
+    targetSpeed = 1.67;
     targets = [];
     bullets = [];
     updateHUD();
@@ -417,38 +410,11 @@ function spawnWave() {
 
 function completeLevel() {
     gameState = 'transition';
-
-    if (currentLevel === 1) {
-        showLevelText('LEVEL COMPLETE!');
-        setTimeout(() => {
-            gameState = 'gate1';
-            gate1.classList.remove('hidden');
-        }, 1500);
-    } else if (currentLevel === 2) {
-        showLevelText('LEVEL COMPLETE!');
-        setTimeout(() => {
-            gameState = 'gate2';
-            gate2.classList.remove('hidden');
-        }, 1500);
-    } else if (currentLevel === 3) {
-        showLevelText('MISSION COMPLETE!');
-        setTimeout(() => {
-            gameState = 'final';
-            showFinalCTA();
-        }, 1500);
-    }
-}
-
-function startNextLevel() {
-    currentLevel++;
-    targetSpeed += 0.33; // Increase speed each level (10% faster)
-    updateHUD();
-    gameState = 'transition'; // Stay in transition until targets spawn
-    showLevelText('LEVEL ' + currentLevel);
+    showLevelText('GAME COMPLETE!');
     setTimeout(() => {
-        spawnWave();
-        gameState = 'playing'; // Now start playing
-    }, 1000);
+        gameState = 'gate1';
+        gate1.classList.remove('hidden');
+    }, 1500);
 }
 
 function showLevelText(text) {
@@ -469,24 +435,15 @@ function showLevelText(text) {
 async function handleGate1Submit(e) {
     e.preventDefault();
 
-    leadData.name = document.getElementById('name').value;
+    leadData.firstName = document.getElementById('firstName').value;
+    leadData.lastName = document.getElementById('lastName').value;
     leadData.email = document.getElementById('email').value;
 
-    // Don't submit yet - wait until game complete
     gate1.classList.add('hidden');
-    startNextLevel();
+    gameState = 'final';
+    showFinalCTA();
 }
 
-async function handleGate2Submit(e) {
-    e.preventDefault();
-
-    leadData.organization = document.getElementById('organization').value;
-    leadData.title = document.getElementById('title').value;
-
-    // Don't submit yet - wait until game complete
-    gate2.classList.add('hidden');
-    startNextLevel();
-}
 
 function formatPriorities() {
     const sorted = Object.entries(leadData.prioritiesHit)
@@ -585,11 +542,10 @@ function showFinalCTA() {
 
     // Submit final data
     submitToFormspree({
-        type: 'COMPLETE - Full Lead with Priorities',
-        name: leadData.name,
+        type: 'COMPLETE - Lead with Priorities',
+        firstName: leadData.firstName,
+        lastName: leadData.lastName,
         email: leadData.email,
-        organization: leadData.organization,
-        title: leadData.title,
         finalScore: score,
         topPriorities: formatPriorities(),
         recommendedGames: leadData.recommendedGames.join(', ')
